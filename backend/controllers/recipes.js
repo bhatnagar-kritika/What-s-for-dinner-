@@ -1,7 +1,8 @@
 const recipesRouter = require('express').Router()
 const { SPOONACULAR_API_KEY} = require('../utils/config')
-//const fetch = require('node-fetch')
+const Recipe = require('../models/Recipes')
 
+//search spoonacular for a recipe by ingredients
 recipesRouter.get('/search', async (req, res, next) => {
   try {
     const ingredients= (req.query.ingredients || '').trim()
@@ -12,7 +13,7 @@ recipesRouter.get('/search', async (req, res, next) => {
     }
 
     const number = (req.query.number || '5').toString()
-    const ranking = (req.query.ranking || '2').toString()
+    const ranking = (req.query.ranking || '1').toString()
 
     const params = new URLSearchParams({
       ingredients,
@@ -50,12 +51,50 @@ recipesRouter.get('/search', async (req, res, next) => {
 recipesRouter.get('/:id', async (req, res, next) => {
   try {
     const {id} = req.params
-  const response = await fetch(
+
+    const existing = await Recipe.findOne({spoonacularId: id})
+    if(existing) {
+      return res.json(existing)
+    }
+
+    const response = await fetch(
     `https://api.spoonacular.com/recipes/${id}/information?apiKey=${SPOONACULAR_API_KEY}`
   )
 
+    if(!response.ok) {
+      const text = await response.text()
+      return res.status(response.status).json({error:text})
+    }
+
     const data = await response.json()
-    res.json(data)
+
+    console.log('Spoonacular response:') 
+    console.log('instructions:', data.instructions)
+    console.log('analyzedInstructions:', data.analyzedInstructions)
+    console.log('===========================')  
+
+    /*Spoonacular used z in analyzedInstructions hence the name and i have used s in analysedInstructions*/ 
+    const recipe = new Recipe({
+      spoonacularId:data.id,
+      title:data.title,
+      image:data.image,
+      summary:data.summary,
+      extendedIngredients: data.extendedIngredients?.map(ingredient=> ({
+        id: ingredient.id,
+        original: ingredient.original
+      })),
+      analysedInstructions: data.analyzedInstructions?.map(instruction=> ({
+        name:instruction.name,
+        steps:instruction.steps.map(step=> ({
+          number: step.number,
+          step: step.step
+        }))
+      }))
+
+    })
+
+    const saved = await recipe.save()
+    res.json(saved)
   } catch (error) {
     next(error)
   }

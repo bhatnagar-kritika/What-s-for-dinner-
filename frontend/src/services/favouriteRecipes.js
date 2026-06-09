@@ -1,5 +1,7 @@
 import axios from 'axios'
-const baseUrl = 'http://localhost:3001/api/favourites'
+//const baseUrl = 'http://localhost:3001/api/favourites'
+
+const baseUrl = '/api/favourites'
 
 let token = null
 

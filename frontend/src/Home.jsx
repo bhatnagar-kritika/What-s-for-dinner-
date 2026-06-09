@@ -19,7 +19,10 @@ const Home = ({user}) => {
       setLoading(true)
       setRecipes([])
       const encodedIngredients = encodeURIComponent(ingredients);
-      const url = `http://localhost:3001/api/recipes/search?ingredients=${encodedIngredients}&number=5&ranking=2`
+
+      //const url = `http://localhost:3001/api/recipes/search?ingredients=${encodedIngredients}&number=5&ranking=2`
+      const url = `/api/recipes/search?ingredients=${encodedIngredients}&number=5&ranking=2`
+
       const res= await fetch(url)
       const data = await res.json()
 
@@ -63,7 +66,7 @@ const Home = ({user}) => {
         </div>
 
           {recipes.length===0 && !loading && (
-            <div className="w-full mt-4 max-h-[45vh] overflow-hidden">
+            <div className="w-full mt-4 h-[45vh] overflow-hidden">
               <img 
                 src={foodBanner}
                 alt="No recipes found"

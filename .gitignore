@@ -5,7 +5,7 @@ backend/.env
 node_modules
 
 # Build folders
-dist
+frontend/dist
 
 # Logs
 npm-debug.log*

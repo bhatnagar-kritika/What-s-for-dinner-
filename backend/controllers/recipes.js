@@ -13,12 +13,15 @@ recipesRouter.get('/search', async (req, res, next) => {
     }
 
     const number = (req.query.number || '5').toString()
-    const ranking = (req.query.ranking || '1').toString()
+    const ranking = (req.query.ranking || '2').toString()
+
+    console.log({ingredients, number, ranking})
 
     const params = new URLSearchParams({
       ingredients,
       number,
       ranking,
+      ignorePantry: 'true',
       apiKey: SPOONACULAR_API_KEY
     })
 
